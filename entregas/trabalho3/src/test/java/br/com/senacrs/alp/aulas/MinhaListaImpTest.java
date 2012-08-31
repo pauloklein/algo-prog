@@ -59,58 +59,58 @@ public class MinhaListaImpTest {
 
 	@Test
 	public void testPrefixar(){
-		double esperado = 0.0;
-		double resultado = 0.0;
-		int comparacao = 0;
-
-		int nro_elementos = 0;
+		String esperado = null;
+		String resultado = null;
 		
 		MinhaListaImp<String> obj = null;
 		String arg = null;
+		String prefixo = null;
 		
 		arg = "valor inicial";
 		obj = new MinhaListaImp<String>(arg);
 		
-		arg = "valor para prefixar";
-		obj.prefixar(arg);
+		prefixo = "valor para prefixar";
+		obj.prefixar(prefixo);
 		
-		nro_elementos = 2;
+		Nodo<String> primeiro = obj.getInicio();
 		
-		esperado = nro_elementos;
-		resultado = obj.tamanho();
-		comparacao = Double.compare(resultado, esperado);
+		esperado = prefixo;
+		resultado = primeiro.getValor();
+		
 		Assert.assertEquals(
-				"Passando-se dois elementos para a lista o tamanho deve ser " + String.valueOf(esperado) 
-				+ ", valor retornando: " + String.valueOf(resultado),
-				comparacao, 0);				
+				"O primeiro elemento deve possuir o valor " + esperado + "na lista" 
+				+ ", valor retornando: " + resultado,
+				esperado, resultado);			
 	}
 	
 	@Test
 	public void testSufixar() {
-		double esperado = 0.0;
-		double resultado = 0.0;
-		int comparacao = 0;
-		
-		int nro_elementos = 0;
+		String esperado = null;
+		String resultado = null;
 		
 		MinhaListaImp<String> obj = null;
 		String arg = null;
+		String sufixo = null;
+		
+		Nodo<String> primeiro = null;
+		Nodo<String> ultimo = null;
 		
 		arg = "valor inicial";
 		obj = new MinhaListaImp<String>(arg);
 		
-		arg = "valor para sufixar";
-		obj.sufixar(arg);
+		sufixo = "valor para sufixar";
+		obj.sufixar(sufixo);
 		
-		nro_elementos = 2;
+		primeiro = obj.getInicio();
+		ultimo = primeiro.getProximo();
 		
-		esperado = nro_elementos;
-		resultado = obj.tamanho();
-		comparacao = Double.compare(resultado, esperado);
+		esperado = sufixo;
+		resultado = ultimo.getValor();
+		
 		Assert.assertEquals(
-				"Passando-se " + nro_elementos + " elementos para a lista o tamanho deve ser " + String.valueOf(esperado) 
-				+ ", valor retornando: " + String.valueOf(resultado),
-				comparacao, 0);				
+				"O último elemento deve possuir o valor " + esperado + "na lista" 
+				+ ", valor retornando: " + resultado,
+				esperado, resultado);			
 	}
 	
 	@Test
@@ -125,34 +125,33 @@ public class MinhaListaImpTest {
 	
 	@Test
 	public void testTamanho() {
-		double esperado = 0.0;
-		double resultado = 0.0;
-		int comparacao = 0;
-		
+		int esperado = 0;
+		int resultado = 0;
 		int nro_elementos = 0;
 		
 		MinhaListaImp<String> obj = null;
 		String arg = null;
+		Nodo<String> nodo = null;		
+		Nodo<String> auxiliar = null;
 		
 		arg = "valor inicial";
 		obj = new MinhaListaImp<String>(arg);
-		nro_elementos += 1;
-		
-		arg = "valor para prefixar";
-		obj.prefixar(arg);
-		nro_elementos += 1;
-		
-		arg = "valor para sufixar";
-		obj.sufixar(arg);
-		nro_elementos += 1;
-		
+				
+		nodo = obj.getInicio();
+				
+		nro_elementos = 3;
+		for(int i = 1; i < nro_elementos; i++){
+			auxiliar = new Nodo<String>("valor " + i);
+			nodo.setProximo(auxiliar);
+			nodo = auxiliar;
+		}
+				
 		esperado = nro_elementos;
 		resultado = obj.tamanho();
-		comparacao = Double.compare(resultado, esperado);
 		Assert.assertEquals(
 				"Passando-se  " + nro_elementos + " elementos para a lista o tamanho deve ser " + String.valueOf(esperado) 
 				+ ", valor retornando: " + String.valueOf(resultado),
-				comparacao, 0);		
+				esperado, resultado);		
 		
 	}
 	
