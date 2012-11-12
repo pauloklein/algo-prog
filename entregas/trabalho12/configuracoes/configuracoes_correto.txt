@@ -1,2 +1,0 @@
-root_dir = ./U:/git/trabalho12/webserver/
-port = 80

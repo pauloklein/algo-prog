@@ -1,2 +1,0 @@
-root_dir_incorreto = ./U:/git/trabalho12/webserver/
-port_incorreto = 80
