@@ -1,2 +1,0 @@
-GET /index.html http/1.1
-Host: www.google.com    

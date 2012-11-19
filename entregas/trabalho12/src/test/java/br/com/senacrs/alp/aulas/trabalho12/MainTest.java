@@ -21,9 +21,12 @@ public class MainTest {
 	private final static String NOME_ARQUIVO_CONFIG_INCORRETO = "config_incorreto.prop";
 	private final static String ARQUIVO_CONFIG_INCORRETO = DIRETORIO
 			+ NOME_ARQUIVO_CONFIG_INCORRETO;
-	private final static String NOME_ARQUIVO_REQ_CORRETO = "req_correto.txt";
-	private final static String ARQUIVO_REQ_CORRETO = DIRETORIO
-			+ NOME_ARQUIVO_REQ_CORRETO;
+	private final static String NOME_ARQUIVO_REQ_CORRETO_VALIDO = "req_correto_200.txt";
+	private final static String ARQUIVO_REQ_CORRETO_VALIDO = DIRETORIO
+			+ NOME_ARQUIVO_REQ_CORRETO_VALIDO;
+	private final static String NOME_ARQUIVO_REQ_CORRETO_INVALIDO = "req_correto_404.txt";
+	private final static String ARQUIVO_REQ_CORRETO_INVALIDO = DIRETORIO
+			+ NOME_ARQUIVO_REQ_CORRETO_INVALIDO;
 	private final static String NOME_ARQUIVO_REQ_INCORRETO = "req_incorreto.txt";
 	private final static String ARQUIVO_REQ_INCORRETO = DIRETORIO
 			+ NOME_ARQUIVO_REQ_INCORRETO;
@@ -143,11 +146,26 @@ public class MainTest {
 	}	
 	
 	@Test
-	public void testeArquivoReqCorreto() {
+	public void testeArquivoReqCorretoInvalido() {
 		
 		String[] args = new String[2];
 		args[0] = ARQUIVO_CONFIG_CORRETO;
-		args[1] = ARQUIVO_REQ_CORRETO;
+		args[1] = ARQUIVO_REQ_CORRETO_INVALIDO;
+		
+		try {
+			Main.main(args);
+			fail("Deveria ter abortado.");
+		} catch (Exception e) {
+			Assert.assertTrue(true);	
+		}
+	}	
+	
+	@Test
+	public void testeArquivoReqCorretoValido() {
+		
+		String[] args = new String[2];
+		args[0] = ARQUIVO_CONFIG_CORRETO;
+		args[1] = ARQUIVO_REQ_CORRETO_VALIDO;
 		
 		try {
 			Main.main(args);
