@@ -1,12 +1,20 @@
 package br.com.senacrs.alp.aulas.trabalho12;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+//import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 public class Main {
 
@@ -14,7 +22,8 @@ public class Main {
 
 		String nomeArquivoConfiguracao = null;
 		String nomeArquivoRequisicao = null;
-
+		String nomeArquivoSaida = null;
+		
 		Map<String, String> hashConfiguracao = new HashMap<String, String>();
 		Map<String, String> hashRequisicao = new HashMap<String, String>();
 
@@ -22,7 +31,7 @@ public class Main {
 		String caminhoAbsoluto = null;
 		String caminhoRequisicao = null;
 
-		String host = null;
+		//String host = null;
 		String get = null;
 
 		if (args == null) {
@@ -34,8 +43,12 @@ public class Main {
 			} else if (args.length == 2) {
 				nomeArquivoConfiguracao = args[0];
 				nomeArquivoRequisicao = args[1];
+			} else if (args.length == 3) {
+				nomeArquivoConfiguracao = args[0];
+				nomeArquivoRequisicao = args[1];
+				nomeArquivoSaida = args[2];
 			}
-
+				
 			if (nomeArquivoConfiguracao != null) {
 				hashConfiguracao = validaArquivoConfiguracao(nomeArquivoConfiguracao);
 				caminhoRelativo = hashConfiguracao.get("root_dir")
@@ -49,20 +62,144 @@ public class Main {
 
 				if (nomeArquivoRequisicao != null) {
 					hashRequisicao = validaArquivoRequisicao(nomeArquivoRequisicao);
-					host = hashRequisicao.get("Host:");
+					//host = hashRequisicao.get("Host:");
 					get = hashRequisicao.get("GET").split(" ")[0];
 
 					caminhoRequisicao = caminhoAbsoluto + get;
-
-					validaArquivoWebserver(caminhoRequisicao);
-
-					// System.out.println(host + get);
+					
+					if (nomeArquivoSaida != null) {
+						saidaRequisicao(caminhoRequisicao, nomeArquivoSaida);	
+					}
 				}
 			}
 		}
 	}
 
-	private static void validaArquivoWebserver(String caminhoRequisicao) {
+	private static void saidaRequisicao(String caminhoRequisicao, String nomeArquivoSaida) {
+		
+		File arquivo = null;
+		boolean arquivoEncontrado;
+		Date data = null;
+		SimpleDateFormat formatador = null;
+		String dataFormatada = "";
+		long tamanhoArquivo = 0;
+		String conteudo = "";
+		String mensagem = "";
+		String[] saida = null;
+		
+		arquivo = validaArquivoWebserver(caminhoRequisicao);
+		arquivoEncontrado =	verificaArquivoWebserver(arquivo);
+		
+		data = new Date();
+		formatador = new SimpleDateFormat(
+	            "EEE, dd MMM yyyy HH:mm:ss z",
+	            Locale.getDefault());
+		formatador.setTimeZone(TimeZone.getTimeZone("GMT"));
+		dataFormatada = formatador.format(data);
+		
+		String[] arrayTextoSaida = null;
+		
+		if(arquivoEncontrado){
+			mensagem = "202 OK";
+			conteudo = capturaConteudoArquivoWebserver(arquivo);						
+			tamanhoArquivo = capturaTamanhoArquivo(arquivo);
+		} else {
+			mensagem = "404 NotFound";
+		}
+		
+		saida = new String[8];
+		saida[0] = "HTTP/1.0 " + mensagem;
+		saida[1] = "Date: " + dataFormatada;
+		saida[2] = "Server: SenacAPL2012";
+		saida[3] = "Content-Length: " + tamanhoArquivo;
+		saida[4] = "Content-Type: text/html; charset=utf8";
+		saida[5] = "Connection: Close";
+		saida[6] = "";
+		saida[7] = conteudo;
+		
+		escreveArquivoSaida(saida, nomeArquivoSaida);
+		
+		arrayTextoSaida = leArquivoSaida(nomeArquivoSaida);
+		for (int i = 0; i < arrayTextoSaida.length; i++) {
+			System.out.println(arrayTextoSaida[i]);
+		}
+	}
+
+	private static void escreveArquivoSaida(String[] saida, String nomeArquivoSaida) {
+		
+		File arquivo = null;
+		FileWriter writer = null;
+		BufferedWriter output = null;
+		String linha = "";
+		
+		arquivo = new File(nomeArquivoSaida);
+		if (!arquivo.exists() || arquivo.isDirectory()) {
+			System.out.println("ERRO");
+			throw new IllegalArgumentException();
+		}
+		
+		try {
+			writer = new FileWriter(arquivo);
+			output = new BufferedWriter(writer);
+			for (int i = 0; i < saida.length; i++) {
+				linha = saida[i];
+				if(i != (saida.length - 1)){
+					linha += "\n";
+				}
+				output.write(linha);				
+			}
+			output.close();
+		} catch (IOException e6) {
+			System.out.println("ERRO");
+			throw new IllegalArgumentException(e6);
+		}			
+	}
+
+	private static String[] leArquivoSaida(String nomeArquivoSaida) {
+		
+		File arquivo = null;
+		FileReader reader = null;
+		BufferedReader input = null;
+
+		LinkedList<String> listaTexto = new LinkedList<String>();
+		String[] arrayTexto = null;
+
+		String line = null;
+		
+		arquivo = new File(nomeArquivoSaida);
+		if (!arquivo.exists() || arquivo.isDirectory()) {
+			System.out.println("ERRO");
+			throw new IllegalArgumentException();
+		}
+		
+		try {
+			reader = new FileReader(arquivo);
+			try {
+				input = new BufferedReader(reader);
+				line = input.readLine();
+
+				while (line != null) {
+					listaTexto.add(line);
+					line = input.readLine();
+				}
+				input.close();
+			} catch (IOException e8) {
+				throw new IllegalArgumentException(e8);
+			}
+		} catch (FileNotFoundException e7) {
+			throw new IllegalArgumentException(e7);
+		}
+
+		arrayTexto = new String[listaTexto.size()];
+		for (int i = 0; i < arrayTexto.length; i++) {
+			arrayTexto[i] = listaTexto.get(i);
+			System.out.println(arrayTexto[i]);
+		}
+		
+		return arrayTexto;
+	}
+	
+	private static File validaArquivoWebserver(String caminhoRequisicao) {
 
 		File arquivo = null;
 		String caminhoCompleto = null;
@@ -75,15 +212,71 @@ public class Main {
 			arquivo = new File(caminhoCompleto);
 		}
 
-		if (!arquivo.exists()) {
-			System.out.println("404 NotFound");
-			throw new IllegalArgumentException();
-		} else {
-			System.out.println("200 OK " + caminhoCompleto.replace("/", ""));
-		}
-
+		return arquivo;			
 	}
 
+	private static boolean verificaArquivoWebserver(File arquivo) {
+		
+		boolean arquivoEncontrado;
+		
+		if (!arquivo.exists()) {
+			System.out.println("404 NotFound");
+			arquivoEncontrado = false;
+		} else {
+			arquivoEncontrado = true;
+			System.out.println("200 OK " + arquivo.getAbsolutePath());
+		}
+		
+		return arquivoEncontrado;
+	}
+
+	private static String capturaConteudoArquivoWebserver(File arquivo) {
+		
+		FileReader reader = null;
+		String conteudo = "";
+		
+		try {
+			reader = new FileReader(arquivo);
+
+			BufferedReader input = null;
+			String line = null;
+
+			try {
+				input = new BufferedReader(reader);
+				line = input.readLine();
+
+				while (line != null) {
+					conteudo += line;
+					line = input.readLine();
+					if(line != null){
+						conteudo += "\n";
+					}
+				}
+
+				input.close();
+
+			} catch (IOException e5) {
+				System.out.println("ERRO");
+				throw new IllegalArgumentException(e5);
+			}							
+
+		} catch (FileNotFoundException e4) {
+			System.out.println("ERRO");
+			throw new IllegalArgumentException(e4);
+		}	
+		
+		return conteudo; 
+	}
+	
+	private static long capturaTamanhoArquivo(File arquivo) {
+		
+		long tamanhoArquivo = 0;
+		
+		tamanhoArquivo = arquivo.length();		
+		
+		return tamanhoArquivo;
+	}
+	
 	private static Map<String, String> validaArquivoConfiguracao(
 			String nomeArquivo) {
 
