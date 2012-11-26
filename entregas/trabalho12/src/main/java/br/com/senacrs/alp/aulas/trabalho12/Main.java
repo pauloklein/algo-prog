@@ -192,8 +192,7 @@ public class Main {
 
 		arrayTexto = new String[listaTexto.size()];
 		for (int i = 0; i < arrayTexto.length; i++) {
-			arrayTexto[i] = listaTexto.get(i);
-			System.out.println(arrayTexto[i]);
+			arrayTexto[i] = listaTexto.get(i);			
 		}
 		
 		return arrayTexto;
